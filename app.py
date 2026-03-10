@@ -15,7 +15,7 @@ from datetime import datetime
 from typing import Any
 
 from flask import Flask, jsonify, request
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from pytrends.request import TrendReq
 
 # ── Setup ────────────────────────────────────────────────────────────────────
@@ -24,8 +24,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)  # Allow requests from any origin (StackBlitz / Vercel frontend)
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=False)  # Allow requests from any origin (StackBlitz / Vercel frontend)
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    return response
 # ── Config ───────────────────────────────────────────────────────────────────
 
 MARKET_NAMES: dict[str, str] = {
